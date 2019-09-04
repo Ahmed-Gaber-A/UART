@@ -80,6 +80,11 @@ typedef struct {
 	Datasize_t Datasize; 
 	parity_t parity; 
 	stopbits_t StopBits; 
+	/*
+	UART_CallBackPtr FrameErrorCallBackPtr;
+	UART_CallBackPtr ParityErrorCallBackPtr;
+	UART_CallBackPtr DataOverRunCallBackPtr;
+	*/
 	}UART_Cfg_S;
 	
 extern const UART_Cfg_S UART_Cfg;
@@ -134,5 +139,7 @@ extern status_t UART_StopReceive(void);
 
 extern status_t UART_SendString( uint8* a_data_ptr);
 extern status_t UART_ReceiveString(uint8* a_data_ptr);
+
+status_t UART_ErrorMng(void); 
 
 #endif /* UART_H_ */

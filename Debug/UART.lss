@@ -3,13 +3,13 @@ UART.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         0000062a  00000000  00000000  00000074  2**1
+  0 .text         0000062c  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         0000000a  00800060  0000062a  0000069e  2**0
+  1 .data         0000000a  00800060  0000062c  000006a0  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .stab         000006cc  00000000  00000000  000006a8  2**2
+  2 .stab         000006cc  00000000  00000000  000006ac  2**2
                   CONTENTS, READONLY, DEBUGGING
-  3 .stabstr      00000085  00000000  00000000  00000d74  2**0
+  3 .stabstr      00000085  00000000  00000000  00000d78  2**0
                   CONTENTS, READONLY, DEBUGGING
   4 .debug_aranges 000000e0  00000000  00000000  00000e00  2**3
                   CONTENTS, READONLY, DEBUGGING
@@ -17,7 +17,7 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   6 .debug_abbrev 00000295  00000000  00000000  00001a0a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   0000044b  00000000  00000000  00001c9f  2**0
+  7 .debug_line   0000044c  00000000  00000000  00001c9f  2**0
                   CONTENTS, READONLY, DEBUGGING
   8 .debug_frame  0000012c  00000000  00000000  000020ec  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -63,7 +63,7 @@ Disassembly of section .text:
   60:	10 e0       	ldi	r17, 0x00	; 0
   62:	a0 e6       	ldi	r26, 0x60	; 96
   64:	b0 e0       	ldi	r27, 0x00	; 0
-  66:	ea e2       	ldi	r30, 0x2A	; 42
+  66:	ec e2       	ldi	r30, 0x2C	; 44
   68:	f6 e0       	ldi	r31, 0x06	; 6
   6a:	02 c0       	rjmp	.+4      	; 0x70 <__do_copy_data+0x10>
   6c:	05 90       	lpm	r0, Z+
@@ -86,7 +86,7 @@ Disassembly of section .text:
   82:	b1 07       	cpc	r27, r17
   84:	e1 f7       	brne	.-8      	; 0x7e <.do_clear_bss_loop>
   86:	0e 94 b8 01 	call	0x370	; 0x370 <main>
-  8a:	0c 94 13 03 	jmp	0x626	; 0x626 <_exit>
+  8a:	0c 94 14 03 	jmp	0x628	; 0x628 <_exit>
 
 0000008e <__bad_interrupt>:
   8e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -624,7 +624,7 @@ int main(void)
  3a6:	72 e1       	ldi	r23, 0x12	; 18
  3a8:	8a e7       	ldi	r24, 0x7A	; 122
  3aa:	90 e0       	ldi	r25, 0x00	; 0
- 3ac:	0e 94 f1 02 	call	0x5e2	; 0x5e2 <__udivmodsi4>
+ 3ac:	0e 94 f2 02 	call	0x5e4	; 0x5e4 <__udivmodsi4>
  3b0:	21 50       	subi	r18, 0x01	; 1
  3b2:	30 40       	sbci	r19, 0x00	; 0
  *
@@ -673,7 +673,7 @@ status_t UART_INIT( void/*UART_Cfg_S* UART_Cfg*/)
  3f0:	72 e1       	ldi	r23, 0x12	; 18
  3f2:	8a e7       	ldi	r24, 0x7A	; 122
  3f4:	90 e0       	ldi	r25, 0x00	; 0
- 3f6:	0e 94 f1 02 	call	0x5e2	; 0x5e2 <__udivmodsi4>
+ 3f6:	0e 94 f2 02 	call	0x5e4	; 0x5e4 <__udivmodsi4>
  3fa:	21 50       	subi	r18, 0x01	; 1
  3fc:	30 40       	sbci	r19, 0x00	; 0
  *
@@ -999,240 +999,243 @@ status_t UART_StartTransmit(void)
  530:	8b b1       	in	r24, 0x0b	; 11
  532:	86 ff       	sbrs	r24, 6
  534:	fd cf       	rjmp	.-6      	; 0x530 <UART_StartTransmit+0x2>
+	setbit(UCSRA,TXC); /* clear TXC flag */
+ 536:	5e 9a       	sbi	0x0b, 6	; 11
 return checker ;
 }
- 536:	80 e0       	ldi	r24, 0x00	; 0
- 538:	08 95       	ret
+ 538:	80 e0       	ldi	r24, 0x00	; 0
+ 53a:	08 95       	ret
 
-0000053a <UART_StopTransmit>:
+0000053c <UART_StopTransmit>:
 
 status_t UART_StopTransmit(void)
 {
 	status_t checker = UART_OK;
 	clrbit(UCSRB,TXEN); /* Disable UART as TX to stop Transmitting*/
- 53a:	53 98       	cbi	0x0a, 3	; 10
+ 53c:	53 98       	cbi	0x0a, 3	; 10
 	return checker ;
 }
- 53c:	80 e0       	ldi	r24, 0x00	; 0
- 53e:	08 95       	ret
+ 53e:	80 e0       	ldi	r24, 0x00	; 0
+ 540:	08 95       	ret
 
-00000540 <UART_ReceiveChar>:
+00000542 <UART_ReceiveChar>:
 
 status_t UART_ReceiveChar(uint8* a_data_ptr)
 {
 	status_t checker = UART_OK;
 	if (getbit(UCSRA,RXC)==1)
- 540:	5f 9b       	sbis	0x0b, 7	; 11
- 542:	05 c0       	rjmp	.+10     	; 0x54e <UART_ReceiveChar+0xe>
+ 542:	5f 9b       	sbis	0x0b, 7	; 11
+ 544:	05 c0       	rjmp	.+10     	; 0x550 <UART_ReceiveChar+0xe>
 	{
 		*a_data_ptr = UDR;
- 544:	2c b1       	in	r18, 0x0c	; 12
- 546:	fc 01       	movw	r30, r24
- 548:	20 83       	st	Z, r18
+ 546:	2c b1       	in	r18, 0x0c	; 12
+ 548:	fc 01       	movw	r30, r24
+ 54a:	20 83       	st	Z, r18
 	return checker ;
 }
 
 status_t UART_ReceiveChar(uint8* a_data_ptr)
 {
 	status_t checker = UART_OK;
- 54a:	80 e0       	ldi	r24, 0x00	; 0
- 54c:	08 95       	ret
- 54e:	81 e0       	ldi	r24, 0x01	; 1
- 550:	5f 99       	sbic	0x0b, 7	; 11
- 552:	80 e0       	ldi	r24, 0x00	; 0
+ 54c:	80 e0       	ldi	r24, 0x00	; 0
+ 54e:	08 95       	ret
+ 550:	81 e0       	ldi	r24, 0x01	; 1
+ 552:	5f 99       	sbic	0x0b, 7	; 11
+ 554:	80 e0       	ldi	r24, 0x00	; 0
 	else if (getbit(UCSRA,RXC)==0)
 	{
 		checker = UART_NOK;
 	}
 	return checker;
 }
- 554:	08 95       	ret
+ 556:	08 95       	ret
 
-00000556 <UART_StartReceive>:
+00000558 <UART_StartReceive>:
 
 status_t UART_StartReceive(void)
 {
 	status_t checker = UART_OK;
 	setbit(UCSRB,RXEN); /* Enable UART as TX to start transmitting*/
- 556:	54 9a       	sbi	0x0a, 4	; 10
+ 558:	54 9a       	sbi	0x0a, 4	; 10
 	while (getbit(UCSRA,RXC)==0); /*wait until Reception complete*/
- 558:	5f 9b       	sbis	0x0b, 7	; 11
- 55a:	fe cf       	rjmp	.-4      	; 0x558 <UART_StartReceive+0x2>
+ 55a:	5f 9b       	sbis	0x0b, 7	; 11
+ 55c:	fe cf       	rjmp	.-4      	; 0x55a <UART_StartReceive+0x2>
 	return checker ;
 }
- 55c:	80 e0       	ldi	r24, 0x00	; 0
- 55e:	08 95       	ret
+ 55e:	80 e0       	ldi	r24, 0x00	; 0
+ 560:	08 95       	ret
 
-00000560 <UART_StopReceive>:
+00000562 <UART_StopReceive>:
 
 status_t UART_StopReceive(void)
 {
 	status_t checker = UART_OK;
 	clrbit(UCSRB,RXEN); /* Disable UART as RX to stop Reception */
- 560:	54 98       	cbi	0x0a, 4	; 10
+ 562:	54 98       	cbi	0x0a, 4	; 10
 	return checker ;
 }
- 562:	80 e0       	ldi	r24, 0x00	; 0
- 564:	08 95       	ret
+ 564:	80 e0       	ldi	r24, 0x00	; 0
+ 566:	08 95       	ret
 
-00000566 <UART_SendString>:
+00000568 <UART_SendString>:
 
 
 status_t UART_SendString( uint8* a_data_ptr) 
 {
- 566:	0f 93       	push	r16
- 568:	1f 93       	push	r17
- 56a:	cf 93       	push	r28
- 56c:	8c 01       	movw	r16, r24
+ 568:	0f 93       	push	r16
+ 56a:	1f 93       	push	r17
+ 56c:	cf 93       	push	r28
+ 56e:	8c 01       	movw	r16, r24
 	status_t checker = UART_OK;
 	uint8 index ;
 	for(index=0;a_data_ptr[index]!='#' && checker == UART_OK;index++)
- 56e:	fc 01       	movw	r30, r24
- 570:	90 81       	ld	r25, Z
- 572:	93 32       	cpi	r25, 0x23	; 35
- 574:	91 f0       	breq	.+36     	; 0x59a <UART_SendString+0x34>
- 576:	c0 e0       	ldi	r28, 0x00	; 0
+ 570:	fc 01       	movw	r30, r24
+ 572:	90 81       	ld	r25, Z
+ 574:	93 32       	cpi	r25, 0x23	; 35
+ 576:	91 f0       	breq	.+36     	; 0x59c <UART_SendString+0x34>
+ 578:	c0 e0       	ldi	r28, 0x00	; 0
 	{
 		checker = UART_SendChar(a_data_ptr[index]);
- 578:	89 2f       	mov	r24, r25
- 57a:	0e 94 86 02 	call	0x50c	; 0x50c <UART_SendChar>
+ 57a:	89 2f       	mov	r24, r25
+ 57c:	0e 94 86 02 	call	0x50c	; 0x50c <UART_SendChar>
 		checker = UART_StartTransmit();
- 57e:	0e 94 97 02 	call	0x52e	; 0x52e <UART_StartTransmit>
+ 580:	0e 94 97 02 	call	0x52e	; 0x52e <UART_StartTransmit>
 		checker = UART_StopTransmit();
- 582:	0e 94 9d 02 	call	0x53a	; 0x53a <UART_StopTransmit>
+ 584:	0e 94 9e 02 	call	0x53c	; 0x53c <UART_StopTransmit>
 
 status_t UART_SendString( uint8* a_data_ptr) 
 {
 	status_t checker = UART_OK;
 	uint8 index ;
 	for(index=0;a_data_ptr[index]!='#' && checker == UART_OK;index++)
- 586:	cf 5f       	subi	r28, 0xFF	; 255
- 588:	f8 01       	movw	r30, r16
- 58a:	ec 0f       	add	r30, r28
- 58c:	f1 1d       	adc	r31, r1
- 58e:	90 81       	ld	r25, Z
- 590:	93 32       	cpi	r25, 0x23	; 35
- 592:	21 f0       	breq	.+8      	; 0x59c <UART_SendString+0x36>
- 594:	88 23       	and	r24, r24
- 596:	81 f3       	breq	.-32     	; 0x578 <UART_SendString+0x12>
- 598:	01 c0       	rjmp	.+2      	; 0x59c <UART_SendString+0x36>
+ 588:	cf 5f       	subi	r28, 0xFF	; 255
+ 58a:	f8 01       	movw	r30, r16
+ 58c:	ec 0f       	add	r30, r28
+ 58e:	f1 1d       	adc	r31, r1
+ 590:	90 81       	ld	r25, Z
+ 592:	93 32       	cpi	r25, 0x23	; 35
+ 594:	21 f0       	breq	.+8      	; 0x59e <UART_SendString+0x36>
+ 596:	88 23       	and	r24, r24
+ 598:	81 f3       	breq	.-32     	; 0x57a <UART_SendString+0x12>
+ 59a:	01 c0       	rjmp	.+2      	; 0x59e <UART_SendString+0x36>
 }
 
 
 status_t UART_SendString( uint8* a_data_ptr) 
 {
 	status_t checker = UART_OK;
- 59a:	80 e0       	ldi	r24, 0x00	; 0
+ 59c:	80 e0       	ldi	r24, 0x00	; 0
 		checker = UART_SendChar(a_data_ptr[index]);
 		checker = UART_StartTransmit();
 		checker = UART_StopTransmit();
 	}
 	return checker;
 }
- 59c:	cf 91       	pop	r28
- 59e:	1f 91       	pop	r17
- 5a0:	0f 91       	pop	r16
- 5a2:	08 95       	ret
+ 59e:	cf 91       	pop	r28
+ 5a0:	1f 91       	pop	r17
+ 5a2:	0f 91       	pop	r16
+ 5a4:	08 95       	ret
 
-000005a4 <UART_ReceiveString>:
+000005a6 <UART_ReceiveString>:
 
 status_t UART_ReceiveString( uint8* a_data_ptr)
 {
- 5a4:	0f 93       	push	r16
- 5a6:	1f 93       	push	r17
- 5a8:	cf 93       	push	r28
- 5aa:	8c 01       	movw	r16, r24
+ 5a6:	0f 93       	push	r16
+ 5a8:	1f 93       	push	r17
+ 5aa:	cf 93       	push	r28
+ 5ac:	8c 01       	movw	r16, r24
 	status_t checker = UART_OK;
 	uint8 index ;
 	for(index=0;a_data_ptr[index]!='#' && checker == UART_OK;index++)
- 5ac:	fc 01       	movw	r30, r24
- 5ae:	80 81       	ld	r24, Z
- 5b0:	83 32       	cpi	r24, 0x23	; 35
- 5b2:	91 f0       	breq	.+36     	; 0x5d8 <UART_ReceiveString+0x34>
- 5b4:	c0 e0       	ldi	r28, 0x00	; 0
+ 5ae:	fc 01       	movw	r30, r24
+ 5b0:	80 81       	ld	r24, Z
+ 5b2:	83 32       	cpi	r24, 0x23	; 35
+ 5b4:	91 f0       	breq	.+36     	; 0x5da <UART_ReceiveString+0x34>
+ 5b6:	c0 e0       	ldi	r28, 0x00	; 0
 	{
 		checker = UART_ReceiveChar(&a_data_ptr[index]);
- 5b6:	cf 01       	movw	r24, r30
- 5b8:	0e 94 a0 02 	call	0x540	; 0x540 <UART_ReceiveChar>
+ 5b8:	cf 01       	movw	r24, r30
+ 5ba:	0e 94 a1 02 	call	0x542	; 0x542 <UART_ReceiveChar>
 		checker = UART_StartReceive();
- 5bc:	0e 94 ab 02 	call	0x556	; 0x556 <UART_StartReceive>
+ 5be:	0e 94 ac 02 	call	0x558	; 0x558 <UART_StartReceive>
 		checker = UART_StopReceive();
- 5c0:	0e 94 b0 02 	call	0x560	; 0x560 <UART_StopReceive>
+ 5c2:	0e 94 b1 02 	call	0x562	; 0x562 <UART_StopReceive>
 
 status_t UART_ReceiveString( uint8* a_data_ptr)
 {
 	status_t checker = UART_OK;
 	uint8 index ;
 	for(index=0;a_data_ptr[index]!='#' && checker == UART_OK;index++)
- 5c4:	cf 5f       	subi	r28, 0xFF	; 255
- 5c6:	f8 01       	movw	r30, r16
- 5c8:	ec 0f       	add	r30, r28
- 5ca:	f1 1d       	adc	r31, r1
- 5cc:	90 81       	ld	r25, Z
- 5ce:	93 32       	cpi	r25, 0x23	; 35
- 5d0:	21 f0       	breq	.+8      	; 0x5da <UART_ReceiveString+0x36>
- 5d2:	88 23       	and	r24, r24
- 5d4:	81 f3       	breq	.-32     	; 0x5b6 <UART_ReceiveString+0x12>
- 5d6:	01 c0       	rjmp	.+2      	; 0x5da <UART_ReceiveString+0x36>
+ 5c6:	cf 5f       	subi	r28, 0xFF	; 255
+ 5c8:	f8 01       	movw	r30, r16
+ 5ca:	ec 0f       	add	r30, r28
+ 5cc:	f1 1d       	adc	r31, r1
+ 5ce:	90 81       	ld	r25, Z
+ 5d0:	93 32       	cpi	r25, 0x23	; 35
+ 5d2:	21 f0       	breq	.+8      	; 0x5dc <UART_ReceiveString+0x36>
+ 5d4:	88 23       	and	r24, r24
+ 5d6:	81 f3       	breq	.-32     	; 0x5b8 <UART_ReceiveString+0x12>
+ 5d8:	01 c0       	rjmp	.+2      	; 0x5dc <UART_ReceiveString+0x36>
 	return checker;
 }
 
 status_t UART_ReceiveString( uint8* a_data_ptr)
 {
 	status_t checker = UART_OK;
- 5d8:	80 e0       	ldi	r24, 0x00	; 0
+ 5da:	80 e0       	ldi	r24, 0x00	; 0
 		checker = UART_ReceiveChar(&a_data_ptr[index]);
 		checker = UART_StartReceive();
 		checker = UART_StopReceive();
 	}
 	return checker;
- 5da:	cf 91       	pop	r28
- 5dc:	1f 91       	pop	r17
- 5de:	0f 91       	pop	r16
- 5e0:	08 95       	ret
+}
+ 5dc:	cf 91       	pop	r28
+ 5de:	1f 91       	pop	r17
+ 5e0:	0f 91       	pop	r16
+ 5e2:	08 95       	ret
 
-000005e2 <__udivmodsi4>:
- 5e2:	a1 e2       	ldi	r26, 0x21	; 33
- 5e4:	1a 2e       	mov	r1, r26
- 5e6:	aa 1b       	sub	r26, r26
- 5e8:	bb 1b       	sub	r27, r27
- 5ea:	fd 01       	movw	r30, r26
- 5ec:	0d c0       	rjmp	.+26     	; 0x608 <__udivmodsi4_ep>
+000005e4 <__udivmodsi4>:
+ 5e4:	a1 e2       	ldi	r26, 0x21	; 33
+ 5e6:	1a 2e       	mov	r1, r26
+ 5e8:	aa 1b       	sub	r26, r26
+ 5ea:	bb 1b       	sub	r27, r27
+ 5ec:	fd 01       	movw	r30, r26
+ 5ee:	0d c0       	rjmp	.+26     	; 0x60a <__udivmodsi4_ep>
 
-000005ee <__udivmodsi4_loop>:
- 5ee:	aa 1f       	adc	r26, r26
- 5f0:	bb 1f       	adc	r27, r27
- 5f2:	ee 1f       	adc	r30, r30
- 5f4:	ff 1f       	adc	r31, r31
- 5f6:	a2 17       	cp	r26, r18
- 5f8:	b3 07       	cpc	r27, r19
- 5fa:	e4 07       	cpc	r30, r20
- 5fc:	f5 07       	cpc	r31, r21
- 5fe:	20 f0       	brcs	.+8      	; 0x608 <__udivmodsi4_ep>
- 600:	a2 1b       	sub	r26, r18
- 602:	b3 0b       	sbc	r27, r19
- 604:	e4 0b       	sbc	r30, r20
- 606:	f5 0b       	sbc	r31, r21
+000005f0 <__udivmodsi4_loop>:
+ 5f0:	aa 1f       	adc	r26, r26
+ 5f2:	bb 1f       	adc	r27, r27
+ 5f4:	ee 1f       	adc	r30, r30
+ 5f6:	ff 1f       	adc	r31, r31
+ 5f8:	a2 17       	cp	r26, r18
+ 5fa:	b3 07       	cpc	r27, r19
+ 5fc:	e4 07       	cpc	r30, r20
+ 5fe:	f5 07       	cpc	r31, r21
+ 600:	20 f0       	brcs	.+8      	; 0x60a <__udivmodsi4_ep>
+ 602:	a2 1b       	sub	r26, r18
+ 604:	b3 0b       	sbc	r27, r19
+ 606:	e4 0b       	sbc	r30, r20
+ 608:	f5 0b       	sbc	r31, r21
 
-00000608 <__udivmodsi4_ep>:
- 608:	66 1f       	adc	r22, r22
- 60a:	77 1f       	adc	r23, r23
- 60c:	88 1f       	adc	r24, r24
- 60e:	99 1f       	adc	r25, r25
- 610:	1a 94       	dec	r1
- 612:	69 f7       	brne	.-38     	; 0x5ee <__udivmodsi4_loop>
- 614:	60 95       	com	r22
- 616:	70 95       	com	r23
- 618:	80 95       	com	r24
- 61a:	90 95       	com	r25
- 61c:	9b 01       	movw	r18, r22
- 61e:	ac 01       	movw	r20, r24
- 620:	bd 01       	movw	r22, r26
- 622:	cf 01       	movw	r24, r30
- 624:	08 95       	ret
+0000060a <__udivmodsi4_ep>:
+ 60a:	66 1f       	adc	r22, r22
+ 60c:	77 1f       	adc	r23, r23
+ 60e:	88 1f       	adc	r24, r24
+ 610:	99 1f       	adc	r25, r25
+ 612:	1a 94       	dec	r1
+ 614:	69 f7       	brne	.-38     	; 0x5f0 <__udivmodsi4_loop>
+ 616:	60 95       	com	r22
+ 618:	70 95       	com	r23
+ 61a:	80 95       	com	r24
+ 61c:	90 95       	com	r25
+ 61e:	9b 01       	movw	r18, r22
+ 620:	ac 01       	movw	r20, r24
+ 622:	bd 01       	movw	r22, r26
+ 624:	cf 01       	movw	r24, r30
+ 626:	08 95       	ret
 
-00000626 <_exit>:
- 626:	f8 94       	cli
+00000628 <_exit>:
+ 628:	f8 94       	cli
 
-00000628 <__stop_program>:
- 628:	ff cf       	rjmp	.-2      	; 0x628 <__stop_program>
+0000062a <__stop_program>:
+ 62a:	ff cf       	rjmp	.-2      	; 0x62a <__stop_program>

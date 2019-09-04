@@ -256,3 +256,20 @@ status_t UART_ReceiveString( uint8* a_data_ptr)
 	}
 	return checker;
 }
+/*
+status_t UART_ErrorMng(void)
+{
+	if (getbit(UCSRA,FE)==1)
+	{
+		FrameErrorCallBackPtr(void);	
+	}
+	if (getbit(UCSRA,DOR)==1)
+	{
+		DataOverRunCallBackPtr(void);	
+	}
+	if (getbit(UCSRA,PE)==1)
+	{
+		ParityErrorCallBackPtr();
+	}
+}
+*/

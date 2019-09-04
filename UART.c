@@ -190,6 +190,7 @@ status_t UART_StartTransmit(void)
 	status_t checker = UART_OK;
 	setbit(UCSRB,TXEN); /* Enable UART as TX to start transmitting*/
 	while (getbit(UCSRA,TXC)==0); /*wait until transmitting complete*/
+	setbit(UCSRA,TXC); /* clear TXC flag */
 return checker ;
 }
 
@@ -227,4 +228,31 @@ status_t UART_StopReceive(void)
 	status_t checker = UART_OK;
 	clrbit(UCSRB,RXEN); /* Disable UART as RX to stop Reception */
 	return checker ;
+}
+
+
+status_t UART_SendString( uint8* a_data_ptr) 
+{
+	status_t checker = UART_OK;
+	uint8 index ;
+	for(index=0;a_data_ptr[index]!='#' && checker == UART_OK;index++)
+	{
+		checker = UART_SendChar(a_data_ptr[index]);
+		checker = UART_StartTransmit();
+		checker = UART_StopTransmit();
+	}
+	return checker;
+}
+
+status_t UART_ReceiveString( uint8* a_data_ptr)
+{
+	status_t checker = UART_OK;
+	uint8 index ;
+	for(index=0;a_data_ptr[index]!='#' && checker == UART_OK;index++)
+	{
+		checker = UART_ReceiveChar(&a_data_ptr[index]);
+		checker = UART_StartReceive();
+		checker = UART_StopReceive();
+	}
+	return checker;
 }

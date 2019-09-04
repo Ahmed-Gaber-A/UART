@@ -132,7 +132,7 @@ extern status_t UART_ReceiveChar(uint8* a_data_ptr);
 extern status_t UART_StartReceive(void);
 extern status_t UART_StopReceive(void);
 
-extern status_t UART_Recieve(const uint8* a_data_ptr);
-extern status_t UART_Send(uint8* a_data_ptr);
+extern status_t UART_SendString( uint8* a_data_ptr);
+extern status_t UART_ReceiveString(uint8* a_data_ptr);
 
 #endif /* UART_H_ */
